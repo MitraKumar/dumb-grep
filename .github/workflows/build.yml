@@ -2,8 +2,8 @@ name: Build and Release Executables
 
 on:
   push:
-    branches:
-      - master
+    tags:          # Trigger workflow only on tagged commits
+      - 'v*'       # Match tags like v1.0, v1.1, etc.
 
 jobs:
   build-and-release:
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22'  # Specify Go 1.22 explicitly
+          go-version: '1.22'  # Specify Go version
 
       # Build the executable
       - name: Build executable
@@ -37,7 +37,6 @@ jobs:
       # Upload executables to release
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/heads/')
         with:
           files: dumb-grep-${{ matrix.target }}
         env:
