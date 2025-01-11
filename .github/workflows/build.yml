@@ -32,12 +32,18 @@ jobs:
       # Build the executable
       - name: Build executable
         run: |
-          GOOS=${{ matrix.target }} GOARCH=amd64 go build -o dumb-grep-${{ matrix.target }}
+          if [ "${{ matrix.target }}" = "windows" ]; then
+            GOOS=windows GOARCH=amd64 go build -o dumb-grep-${{ matrix.target }}.exe
+          else
+            GOOS=${{ matrix.target }} GOARCH=amd64 go build -o dumb-grep-${{ matrix.target }}
+          fi
 
       # Upload executables to release
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v1
         with:
-          files: dumb-grep-${{ matrix.target }}
+          files: |
+            dumb-grep-linux
+            dumb-grep-windows.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
