@@ -27,7 +27,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: latest  # Use the latest Go version
+          go-version: '1.22'  # Specify Go 1.22 explicitly
 
       # Build the executable
       - name: Build executable
