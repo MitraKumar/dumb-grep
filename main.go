@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+
+	"github.com/fatih/color"
 )
 
 func readFileByLine(filePath string) []string {
@@ -27,7 +29,7 @@ func readFileByLine(filePath string) []string {
 }
 
 func main() {
-	// Check if file path is provided as an argument
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: ./dumb-grep <file_path> [search_pattern]")
 		os.Exit(1)
@@ -41,15 +43,18 @@ func main() {
 	if len(os.Args) > 2 {
 		regexPattern = os.Args[2]
 	}
+	re, err := regexp.Compile(regexPattern)
+	if err != nil {
+		fmt.Println("Error: Enter a valid regex.")
+		os.Exit(1)
+	}
 
 	for _, line := range fileLines {
-		isPatternMatched, err := regexp.MatchString(regexPattern, line)
-		if err != nil {
-			fmt.Println("Error: Enter a valid regex.")
-			os.Exit(1)
-		}
+		isPatternMatched := re.MatchString(line)
 		if isPatternMatched {
-			fmt.Println(line)
+			fmt.Println(re.ReplaceAllStringFunc(line, func(match string) string {
+				return fmt.Sprintf("%s", color.GreenString(match))
+			}))
 		}
 	}
 }
