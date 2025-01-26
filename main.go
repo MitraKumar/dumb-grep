@@ -32,6 +32,6 @@ func main() {
 	}
 
 	for _, line := range fileLines {
-		fmt.Println(line)
+		line.RenderLineMatch()
 	}
 }

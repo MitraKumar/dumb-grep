@@ -9,6 +9,22 @@ import (
 	"github.com/fatih/color"
 )
 
+type LineMatch struct {
+	matchText  string
+	lineNumber int
+}
+
+func newLineMatch(matchText string, lineNumber int) LineMatch {
+	return LineMatch{
+		matchText:  matchText,
+		lineNumber: lineNumber,
+	}
+}
+
+func (line *LineMatch) RenderLineMatch() {
+	fmt.Printf("%d %s\n", line.lineNumber, line.matchText)
+}
+
 type MatchHighlighter struct {
 	pattern *regexp.Regexp
 }
@@ -21,21 +37,23 @@ func NewMatchHighlighter(pattern string) (*MatchHighlighter, error) {
 	return &MatchHighlighter{pattern: re}, nil
 }
 
-func (m *MatchHighlighter) HighlightFileLinesByPatter(filePath string) ([]string, error) {
-	var fileLines []string
+func (m *MatchHighlighter) HighlightFileLinesByPatter(filePath string) ([]LineMatch, error) {
+	var fileLines []LineMatch
 	readFile, err := os.Open(filePath)
 	if err != nil {
-		return fileLines, fmt.Errorf("Something went wrong")
+		return fileLines, fmt.Errorf("something went wrong")
 	}
 	defer readFile.Close()
 
 	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)
 
+	lineNumber := 0
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
+		lineNumber += 1
 		if m.isPatternMatched(line) {
-			fileLines = append(fileLines, m.highlightString(line))
+			fileLines = append(fileLines, newLineMatch(m.highlightString(line), lineNumber))
 		}
 	}
 
@@ -48,7 +66,7 @@ func (m *MatchHighlighter) isPatternMatched(text string) bool {
 
 func (m *MatchHighlighter) highlightString(text string) string {
 	highlitedText := m.pattern.ReplaceAllStringFunc(text, func(match string) string {
-		return fmt.Sprintf("%s", color.GreenString(match))
+		return color.GreenString(match)
 	})
 	return highlitedText
 }
